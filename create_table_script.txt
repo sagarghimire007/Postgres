@@ -1,0 +1,7 @@
+SELECT 'CREATE TABLE if not exists ' || column_list.table_name || ' (' || E'\n' || '' || 
+    string_agg(column_list.column_expr, ', ' || E'\n' || '') || 
+    '' || E'\n' || ');'
+FROM 
+  (select table_name,column_name || ' ' || data_type || ' ' || case when data_type <>'integer' and character_maximum_length is null then coalesce('(' || numeric_precision_radix ||','||numeric_scale ||')') else coalesce('(' || character_maximum_length || ')', '') end || 
+case when is_nullable = 'YES' then '' else ' NOT NULL' end as column_expr FROM information_schema.columns
+WHERE table_schema = 'public' ORDER BY table_name,ordinal_position)column_list  group by column_list.table_name;
